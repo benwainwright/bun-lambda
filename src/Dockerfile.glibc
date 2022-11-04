@@ -1,0 +1,10 @@
+FROM public.ecr.aws/amazonlinux/amazonlinux:2022
+RUN yum install python3 gcc gzip tar unzip bison python -y
+
+RUN curl http://ftp.gnu.org/gnu/glibc/glibc-2.29.tar.gz -o glibc-2.29.tar.gz
+RUN tar -zxvf glibc-2.29.tar.gz
+RUN mkdir glibc-2.29/build
+WORKDIR /glibc-2.29/build
+RUN mkdir -p /layer/lib
+RUN ../configure --prefix=/layer/lib --disable-werror
+RUN make && make install

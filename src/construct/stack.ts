@@ -1,5 +1,4 @@
 import { App, Stack, StackProps } from "aws-cdk-lib";
-import { DockerImageAsset } from "aws-cdk-lib/aws-ecr-assets";
 import { Code, Function, LayerVersion, Runtime } from "aws-cdk-lib/aws-lambda";
 import { Construct } from "constructs";
 import path from "node:path";
@@ -13,9 +12,18 @@ export class BunFunction extends Construct {
   constructor(context: Construct, id: string, props: BunFunctionProps) {
     super(context, id)
 
-    const layer = new LayerVersion(this, `${id}/bun-layer`, {
+    const bootstrapLayer = new LayerVersion(this, `${id}/bun-bootstrap-layer`, {
       code: Code.fromDockerBuild(path.join(__dirname, ".."), {
+        file: 'Dockerfile.bootstrap',
         imagePath: '/var/runtime'
+      }),
+      compatibleRuntimes: [Runtime.PROVIDED_AL2],
+    });
+
+    const glcLayer = new LayerVersion(this, `${id}/bun-glibc-layer`, {
+      code: Code.fromDockerBuild(path.join(__dirname, ".."), {
+        file: 'Dockerfile.glibc',
+        imagePath: '/layer'
       }),
       compatibleRuntimes: [Runtime.PROVIDED_AL2],
     });
@@ -24,7 +32,7 @@ export class BunFunction extends Construct {
       runtime: Runtime.PROVIDED_AL2,
       code: props.code,
       handler: props.handler,
-      layers: [layer]
+      layers: [bootstrapLayer, glcLayer]
     })
   }
 }

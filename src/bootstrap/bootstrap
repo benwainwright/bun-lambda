@@ -1,0 +1,5 @@
+#!/bin/sh
+export NODE_PATH="$LAMBDA_TASK_ROOT:$LAMBDA_OPT:$LAMBDA_RUNTIME_DIR"
+export LD_LIBRARY_PATH="$(echo ${LD_LIBRARY_PATH} | tr ":" "\n" | grep -v "lib64" | tr "\n" ":"  ):/lib64"
+echo $LD_LIBRARY_PATH
+bun $LAMBDA_RUNTIME_DIR/runtime/entry.ts $_HANDLER

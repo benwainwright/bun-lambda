@@ -1,0 +1,10 @@
+FROM public.ecr.aws/lambda/nodejs:16
+RUN yum install gzip tar unzip -y
+RUN curl https://bun.sh/install | bash
+RUN mkdir /var/runtime/bin
+RUN cp /root/.bun/bin/bun /var/runtime/bin/bun
+WORKDIR /var/runtime/
+ADD bootstrap/bootstrap bootstrap
+RUN chmod u+x bootstrap
+ADD runtime runtime
+ENTRYPOINT [ "bash" ]
